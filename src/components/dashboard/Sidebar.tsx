@@ -1,6 +1,6 @@
 'use client';
 
-import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Typography, Box } from '@mui/material';
+import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Typography, Box, styled, IconButton, useTheme } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import {
   Dashboard as DashboardIcon,
@@ -10,7 +10,11 @@ import {
   Assessment as ReportsIcon,
   Settings as SettingsIcon
 } from '@mui/icons-material';
-import { useAuthStore } from '../../stores/auth.store';
+import { useAuthStore } from '@/stores/auth.store';
+import { useLayoutStore } from '../../stores/layout.store';
+import { useEffect, useState } from 'react';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 const menuItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
@@ -24,35 +28,69 @@ const menuItems = [
 export const Sidebar = () => {
   const router = useRouter();
   const { user } = useAuthStore();
+  const drawerWidth = 240;
+  const theme = useTheme();
+  const open = useLayoutStore((state) => state.open);
+  const setOpen = useLayoutStore((state) => state.setOpen);
+  
 
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
 
-  const filteredMenuItems = menuItems.filter(item => {
-    if (user?.role === 'employee') {
-      return !['settings', 'reports'].includes(item.path.split('/').pop()!);
-    }
-    return true;
-  });
+  const DrawerHeader = styled('div')(({ theme }) => ({
+    display: 'flex',
+    alignItems: 'center',
+    padding: theme.spacing(0, 1),
+    // necessary for content to be below app bar
+    ...theme.mixins.toolbar,
+    justifyContent: 'flex-end',
+  }));
+  
 
   return (
     <Drawer
-      variant="permanent"
-      sx={{
-        width: 240,
-        flexShrink: 0,
-        '& .MuiDrawer-paper': { width: 240, boxSizing: 'border-box' },
-      }}
-    >
+    sx={{
+      width: drawerWidth,
+      flexShrink: 0,
+      '& .MuiDrawer-paper': {
+        width: drawerWidth,
+        boxSizing: 'border-box',
+      },
+    }}
+    variant="persistent"
+    anchor="left"
+    open={open}
+  >
+
+      <DrawerHeader>
+
+      <Box sx={{ p: 2, textAlign: 'center' }}>
+        <Typography variant="h6" sx={{ color: 'primary.main' }}>
+          {user?.tenantName || 'Mi Empresa'}
+        </Typography>
+      </Box>
+      <Divider />
+        <IconButton onClick={handleDrawerClose}>
+          {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+        </IconButton>
+      </DrawerHeader>
+      
       <List>
         {menuItems.map((item) => (
           <ListItem key={item.text} disablePadding>
             <ListItemButton onClick={() => router.push(item.path)}>
-              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemIcon sx={{ color: 'text.primary' }}>
+                {item.icon}
+              </ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItemButton>
           </ListItem>
         ))}
       </List>
+      
       <Divider />
+      
       <Box sx={{ p: 2 }}>
         <Typography variant="body2" color="text.secondary">
           Usuario: {user?.name}
