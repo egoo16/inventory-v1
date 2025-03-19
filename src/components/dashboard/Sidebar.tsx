@@ -11,8 +11,6 @@ import {
   Settings as SettingsIcon
 } from '@mui/icons-material';
 import { useAuthStore } from '@/stores/auth.store';
-import { useLayoutStore } from '../../stores/layout.store';
-import { useEffect, useState } from 'react';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
@@ -25,18 +23,21 @@ const menuItems = [
   { text: 'Configuración', icon: <SettingsIcon />, path: '/dashboard/settings' },
 ];
 
-export const Sidebar = () => {
+
+interface SideBarProps {
+  statusOpen: boolean;
+  changeStatus: () => void;
+}
+
+
+export const Sidebar: React.FC<SideBarProps> = ({ statusOpen, changeStatus }) => {
   const router = useRouter();
   const { user } = useAuthStore();
   const drawerWidth = 240;
   const theme = useTheme();
-  const open = useLayoutStore((state) => state.open);
-  const setOpen = useLayoutStore((state) => state.setOpen);
-  
 
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
+
+
 
   const DrawerHeader = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -46,36 +47,36 @@ export const Sidebar = () => {
     ...theme.mixins.toolbar,
     justifyContent: 'flex-end',
   }));
-  
+
 
   return (
     <Drawer
-    sx={{
-      width: drawerWidth,
-      flexShrink: 0,
-      '& .MuiDrawer-paper': {
+      sx={{
         width: drawerWidth,
-        boxSizing: 'border-box',
-      },
-    }}
-    variant="persistent"
-    anchor="left"
-    open={open}
-  >
+        flexShrink: 0,
+        '& .MuiDrawer-paper': {
+          width: drawerWidth,
+          boxSizing: 'border-box',
+        },
+      }}
+      variant="persistent"
+      anchor="left"
+      open={statusOpen}
+    >
 
       <DrawerHeader>
 
-      <Box sx={{ p: 2, textAlign: 'center' }}>
-        <Typography variant="h6" sx={{ color: 'primary.main' }}>
-          {user?.tenantName || 'Mi Empresa'}
-        </Typography>
-      </Box>
-      <Divider />
-        <IconButton onClick={handleDrawerClose}>
+        <Box sx={{ p: 2, textAlign: 'center' }}>
+          <Typography variant="h6" sx={{ color: 'primary.main' }}>
+            {user?.tenantName || 'Mi Empresa'}
+          </Typography>
+        </Box>
+        <Divider />
+        <IconButton onClick={changeStatus}>
           {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
         </IconButton>
       </DrawerHeader>
-      
+
       <List>
         {menuItems.map((item) => (
           <ListItem key={item.text} disablePadding>
@@ -88,9 +89,9 @@ export const Sidebar = () => {
           </ListItem>
         ))}
       </List>
-      
+
       <Divider />
-      
+
       <Box sx={{ p: 2 }}>
         <Typography variant="body2" color="text.secondary">
           Usuario: {user?.name}

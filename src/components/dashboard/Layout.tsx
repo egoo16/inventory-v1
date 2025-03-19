@@ -1,19 +1,25 @@
 'use client';
 
-import { Box, styled } from '@mui/material';
+import { Box, CssBaseline, styled } from '@mui/material';
 import { AppBarComponent } from './AppBar';
 import { Sidebar } from './Sidebar';
 import { useAuthStore } from '@/stores/auth.store';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useLayoutStore } from '../../stores/layout.store';
 
 export const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuthStore();
   const router = useRouter();
+
+  const [open, setOpen] = useState(true);
+
   const drawerWidth = 240;
-  const open = useLayoutStore((state) => state.open);
-  
+
+  const changeStatusClose = () => {
+    setOpen(!open);
+  }
+
+
 
   useEffect(() => {
     if (!loading && !user) {
@@ -51,11 +57,11 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
   return (
     <Box sx={{ display: 'flex' }}>
 
-      
-      <AppBarComponent />
-      <Sidebar />
+      <CssBaseline />
+      <AppBarComponent statusOpen={open} changeStatus={changeStatusClose} />
+      <Sidebar statusOpen={open} changeStatus={changeStatusClose} />
 
-      
+
       {/* <Box
         component="main"
         sx={{
@@ -66,9 +72,9 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
           backgroundColor: (theme) => theme.palette.background.default,
         }}
       > */}
-        <Main open={open}>
+      <Main open={open}>
         {children}
-        </Main>
+      </Main>
       {/* </Box> */}
     </Box>
   );

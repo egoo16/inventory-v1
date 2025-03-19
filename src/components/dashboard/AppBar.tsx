@@ -1,22 +1,22 @@
 'use client';
 
-import { Toolbar, IconButton, Typography, Avatar, Menu, MenuItem, Badge, AppBar, styled } from '@mui/material';
+import { Toolbar, IconButton, Typography, Badge, styled } from '@mui/material';
 import { Menu as MenuIcon, Notifications as NotificationsIcon } from '@mui/icons-material';
 import { useAuthStore } from '@/stores/auth.store';
 import { ThemeToggle } from './ThemeToggle';
-import { useEffect, useState } from 'react';
-import { useLayoutStore } from '../../stores/layout.store';
-import MuiAppBar, { AppBarProps, AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
+import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
+import { MenuProfile } from './components/MenuProfile';
 
-export const AppBarComponent = () => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const { user, logout } = useAuthStore();
-  const openMenu = Boolean(anchorEl);
-  const open = useLayoutStore((state) => state.open);
-  const setOpen = useLayoutStore((state) => state.setOpen);
+interface AppBarProps {
+  statusOpen: boolean;
+  changeStatus: () => void;
+}
+
+export const AppBarComponent: React.FC<AppBarProps> = ({ statusOpen, changeStatus }) => {
+
+
+  const { user } = useAuthStore();
   const drawerWidth = 240;
-
-
 
   interface AppBarProps extends MuiAppBarProps {
     open?: boolean;
@@ -45,18 +45,10 @@ export const AppBarComponent = () => {
   }));
 
 
-  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
   return (
-    <AppBar open={open} position="fixed" sx={{ zIndex: (theme: { zIndex: { drawer: number; }; }) => theme.zIndex.drawer + 1 }}>
+    <AppBar open={statusOpen} position="fixed" sx={{ zIndex: (theme: { zIndex: { drawer: number; }; }) => theme.zIndex.drawer + 1 }}>
       <Toolbar sx={{ justifyContent: 'space-between' }}>
-        <IconButton edge="start" color="inherit" sx={{ mr: 2 }} onClick={() => setOpen(!open)}>
+        <IconButton edge="start" color="inherit" sx={{ mr: 2 }} onClick={() => changeStatus()}>
           <MenuIcon />
         </IconButton>
 
@@ -73,21 +65,8 @@ export const AppBarComponent = () => {
             </Badge>
           </IconButton>
 
-          <IconButton onClick={handleMenu} color="inherit">
-            <Avatar sx={{ bgcolor: 'secondary.main' }}>
-              {user?.name?.[0]?.toUpperCase()}
-            </Avatar>
-          </IconButton>
-
-          <Menu
-            anchorEl={anchorEl}
-            open={openMenu}
-            onClose={handleClose}
-            PaperProps={{ sx: { minWidth: '200px' } }}
-          >
-            <MenuItem onClick={handleClose}>Perfil</MenuItem>
-            <MenuItem onClick={logout}>Cerrar sesión</MenuItem>
-          </Menu>
+          <MenuProfile />
+         
         </div>
       </Toolbar>
     </AppBar>
